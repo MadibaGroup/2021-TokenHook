@@ -1,0 +1,63 @@
+\documentclass[envcountsect]{llncs}
+\pagestyle{headings} 
+\bibliographystyle{splncs04}
+
+
+% = = = = = Packages = = = = = %
+\usepackage{multirow}
+\usepackage[table,xcdraw]{xcolor}
+\input{setup/packages}
+\input{setup/macros}
+\input{setup/table}
+
+%\usepackage[subtle]{savetrees}
+
+\newcommand{\sys}{\textsf{TokenHook}\xspace}
+\newcommand{\erc}{ERC-20\xspace}
+\newcommand{\num}{82\xspace}
+\newcommand{\prct}{99.5\%\xspace}
+\newcommand{\chg}{\color{blue}}
+
+% = = = = = Title = = = = = %
+
+\begin{document}
+\frontmatter
+\mainmatter
+
+\title{\Large \bf A deep dive on \erc contract vulnerabilities}
+
+\maketitle
+
+
+% = = = = = Abstract = = = = = %
+
+\input{sections/abstract}
+
+% = = = = = Main Body = = = = = %
+
+\input{sections/introduction}
+\input{sections/vulnerabilities}
+\input{sections/bestpractices}
+\input{sections/proposal}
+\input{sections/verification}
+\input{sections/comparison}
+\input{sections/conclusion}
+
+% = = = = = Bibliography = = = = = %
+
+\bibliography{bib/references}
+%\nocite{*}
+
+% = = = = = End Notes = = = = = %
+
+\clearpage
+\appendix
+
+\end{document}
+
+
+
+
+
+
+
