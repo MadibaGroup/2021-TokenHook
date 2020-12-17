@@ -17,9 +17,9 @@ Solidity supports two types of \textit{function calls}: internal and external~\c
 In the case of a detected anomaly or attack on a deployed \erc token, the functionality of the token can be frozen pending further investigation. { \blue Similar to Liberty Reserve digital currency service~\cite{LibertyReserve}, governments may compel to stop the token's ability to transact. } To freeze all functionality, the owner of the token can call \texttt{pause()} function. It then sets a lock variable and methods are marked with \texttt{notPaused} modifier, throw exceptions until functionality is restored using \texttt{unpause()}.
 
 
-%\subsubsection{Firing events.}
-%
-%In \erc standard, there are two defined events: \texttt{Approval} and \texttt{Transfer}. The first event logs successful allowance changes by token holders and the second logs successful token transfers by the \texttt{transfer()} and \texttt{transferFrom()} methods. These two events must be fired to notify external application on occurred changes. The external application might use them to update balances, show UI notifications, or to check new token approvals.
+\subsubsection{Firing events.}
+
+In \erc standard, there are two defined events: \texttt{Approval} and \texttt{Transfer}. The first event logs successful allowance changes by token holders and the second logs successful token transfers by the \texttt{transfer()} and \texttt{transferFrom()} methods. These two events must be fired to notify external application on occurred changes. The external application might use them to update balances, show UI notifications, or to check new token approvals.
 
 %\subsubsection{Unexpected revert.}
 %

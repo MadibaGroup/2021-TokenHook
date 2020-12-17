@@ -25,8 +25,8 @@ Among the layers of the Ethereum blockchain, our focus is on the \textit{Contrac
 	\item Using \texttt{onlyOwner} modifier to enforce authentication on \texttt{withdraw()} function before sending out any funds (\textit{Unprotected Ether Withdrawal} mitigation). If necessary, this modifier can be extended to require multiple approvals.
 	\item Using \texttt{Library} keyword to declare \texttt{SafeMath} library as an embedded library. Its code will be added to the \erc contract's code and EVM uses a \texttt{JUMP} opcode instead of \texttt{DELEGATECALL}.
 	\item Implementing all functions to make it fully compatible with the standard.
-	\item Declaring public functions with \texttt{External} keyword to improve performance.
-%	\item Defining six extra events: \texttt{Buy}, \texttt{Sell}, \texttt{Received}, \texttt{Withdrawal}, \texttt{Change} and \texttt{Pause}. These can be used to watch for token events and react accordingly.
+%	\item Declaring public functions with \texttt{External} keyword to improve performance.
+	\item Defining six extra events: \texttt{Buy}, \texttt{Sell}, \texttt{Received}, \texttt{Withdrawal}, \texttt{Change} and \texttt{Pause}. These can be used to watch for token inconsistent behavior and react accordingly (\cf TokenScope~\cite{TokenScope}).
 \end{enumerate}
 
 The authors of the \erc standard reference two sample implementations from OpenZeppelin~\cite{OpenZepplin} and ConsenSys~\cite{ConsensysToken}. ConsenSys implementation is deprecated (according to their GitHub page). We therefore consider only OpenZeppelin implementation for comparison. \sys has the following advantages:
