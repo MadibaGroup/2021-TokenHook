@@ -6,16 +6,17 @@
 % = = = = = Packages = = = = = %
 \usepackage{multirow}
 \usepackage[table,xcdraw]{xcolor}
+\usepackage{enumitem}
 \input{setup/packages}
 \input{setup/macros}
 \input{setup/table}
 
-%\usepackage[subtle]{savetrees}
 \newcommand{\sys}{\textsf{TokenHook}\xspace}
 \newcommand{\erc}{ERC-20\xspace}
 \newcommand{\num}{82\xspace}
 \newcommand{\prct}{99.5\%\xspace}
 \newcommand{\blue}{\color{blue}}
+\setcounter{secnumdepth}{3}
 
 % = = = = = Title = = = = = %
 
@@ -27,7 +28,6 @@
 
 \maketitle
 
-
 % = = = = = Abstract = = = = = %
 
 \input{sections/abstract}
@@ -35,12 +35,13 @@
 % = = = = = Main Body = = = = = %
 
 \input{sections/introduction}
-\input{sections/vulnerabilities}
-\input{sections/bestpractices}
+%\input{sections/vulnerabilities}
+%\input{sections/bestpractices}
 \input{sections/proposal}
 \input{sections/verification}
 \input{sections/comparison}
 \input{sections/conclusion}
+\input{sections/appendices}
 
 % = = = = = Bibliography = = = = = %
 

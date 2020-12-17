@@ -1,20 +1,48 @@
 % !TEX root = ../main.tex
 
 \section{\sys}\label{sec:proposal}
+\erc vulnerabilities are a combination of generic DApp vulnerabilities, as well as specific attacks on the functions enforced by the \erc interface. In section ~\ref{sec:vul}, we examine general attack vectors~\cite{SolidtySecBlog,EthSecServ,SoliditySecCon,ConsensysSecCon,LandoKL} and cross-check their applicability to \erc tokens. { \blue We then consider mitigation techniques in the implementation of \sys and ultimately apply best practices to improve the performance.}
 
-We now present \sys, our ERC20-compliant token implementation written in Solidity. The source code is available on Etherscan, where it has been tested with MetaMask and deployed on Mainnet and Rinkeby\footnote{Etherscan: \url{https://bit.ly/35FMbAf}}. \sys can be customized by developers, who can refer to each mitigation technique separately and address a specific attack. Required comments in NatSpec format~\cite{NatSpec} have been also added to clarify usage of each part. Standard functionalities of the token (\ie \texttt{approve()}, \texttt{transfer()}, \etc) have been unit tested. A demonstration of token interactions and event triggering can also be seen on Etherscan\footnote{Etherscan: \url{https://bit.ly/33xHfL2}, \url{https://bit.ly/35TimMW}}. {\blue Compared to other implementation from OpenZeppelin~\cite{OpenZepplin} and ConsenSys~\cite{ConsensysToken}, \sys has the following advantages\footnote{According to GitHub page of ConsenSys token, it is deprecated. We therefore consider only OpenZeppelin implementation.}:
+Among the layers of the Ethereum blockchain, our focus is on the \textit{Contract layer} in which DApps are executed. The presence of security vulnerability in supplementary layers affect the entire Ethereum blockchain, not necessarily \erc tokens. Therefore, vulnerabilities in other layers are assumed to be out of the scope (\eg \textit{Indistinguishable chains} at the data layer, the \textit{51\% attack} at the consensus layer, \textit{Unlimited nodes creation} at network layer, and \textit{Web3.js Arbitrary File Write} at application layer). Moreover, we exclude vulnerabilities identified in now outdated compiler versions, for example:
+\begin{itemize}[noitemsep,topsep=0pt]
+	\item \textit{Constructor name ambiguity} in versions before 0.4.22.
+	\item \textit{Uninitialized storage pointer} in versions before 0.5.0.
+	\item \textit{Function default visibility} in versions before 0.5.0
+	\item \textit{Typographical error} in versions before 0.5.8.
+	\item \textit{Deprecated solidity functions} in versions before 0.4.25.
+	\item \textit{Assert Violation} in versions before 0.4.10.
+%	\item \textit{Under-priced DoS attack} before EIP-150 \& EIP-1884.
+\end{itemize}
 
-\begin{itemize}
-	\item Unlike OpenZeppelin which uses two complementary functions to mitigate \textit{multiple withdrawal attack}, \sys secures \texttt{transferFrom()} function without introducing new functions. It is therefore fully compliant with the \erc standard.
+\sys, our ERC20-compliant token implementation written in Solidity. The source code is available on Etherscan, where it has been tested with MetaMask and deployed on Mainnet\footnote{Etherscan: \url{https://bit.ly/35FMbAf}}. \sys can be customized by developers, who can refer to each mitigation technique separately and address a specific attack. Required comments in NatSpec format~\cite{NatSpec} have been also added to clarify usage of each part. Standard functionalities of the token (\ie \texttt{approve()}, \texttt{transfer()}, \etc) have been unit tested. A demonstration of token interactions and event triggering can also be seen on Etherscan\footnote{Etherscan: \url{https://bit.ly/33xHfL2}, \url{https://bit.ly/35TimMW}}. {\blue Top features of \sys can be highlighted as follows:
+\begin{enumerate}[noitemsep,topsep=0pt]
+	\item Using \texttt{SafeMath} library in arithmetic operations to catch over/under flows.
+	\item Implementing \texttt{noReentrancy} modifier to enforce Mutex in addition to CEI to mitigate re-entrancy attack.
+	\item Checking the returned value of \texttt{call.value()} and revert failed fund transfers in \texttt{sell()} and \texttt{withdraw()} functions.
+	\item Explicitly define visibility of each function per specification of \erc. Interactive functions (\eg \texttt{Approve()}, \texttt{Transfer()}, \etc) are publicly accessible.
+	\item Adding a new state variable to the \texttt{transferFrom()} function to track transferred tokens and mitigate the \textit{multiple withdrawal attack}. 
+	\item Defining \texttt{withdraw()} function which allows the owner to transfer ETH out of the token contract (\textit{Frozen Ether} mitigation). If necessary, developers can require multiple signatures to withdraw ETH.
+	\item Using \texttt{onlyOwner} modifier to enforce authentication on \texttt{withdraw()} function before sending out any funds (\textit{Unprotected Ether Withdrawal} mitigation). If necessary, this modifier can be extended to require multiple approvals.
+	\item Using \texttt{Library} keyword to declare \texttt{SafeMath} library as an embedded library. Its code will be added to the \erc contract's code and EVM uses a \texttt{JUMP} opcode instead of \texttt{DELEGATECALL}.
+	\item Implementing all functions to make it fully compatible with the standard.
+	\item Declaring public functions with \texttt{External} keyword to improve performance.
+%	\item Defining six extra events: \texttt{Buy}, \texttt{Sell}, \texttt{Received}, \texttt{Withdrawal}, \texttt{Change} and \texttt{Pause}. These can be used to watch for token events and react accordingly.
+\end{enumerate}
+
+The authors of the \erc standard reference two sample implementations from OpenZeppelin~\cite{OpenZepplin} and ConsenSys~\cite{ConsensysToken}. ConsenSys implementation is deprecated (according to their GitHub page). We therefore consider only OpenZeppelin implementation for comparison. \sys has the following advantages:
+\begin{itemize}[noitemsep,topsep=0pt]
+	\item Unlike OpenZeppelin which introduces two new functions to mitigate \textit{multiple withdrawal attack} (\ie \texttt{increaseAllowance()} and \texttt{decreaseAllowance()}), \sys secures standard \erc function (\ie \texttt{transferFrom()}). DApps can interact with standard \texttt{approve()} and \texttt{transferFrom()} methods without adapting their code to new functions. \sys is therefore fully compliant with the \erc specification and can interact with already developed and legacy DApps.
 	\item \sys mitigate \textit{Frozen Ether} issue by introducing \texttt{withdraw()} function while sent ETH to OpenZeppelin contract are unrecoverable.
-	\item \textit{Fail-Safe Mode} is a builtin feature of \sys while OpenZeppelin tokens require incorporation of \texttt{Pausable.sol} contract.
-	\item OpenZeppelin requires other optimizations such as \textit{Locking the pragma}, \textit{Emitting Change event when changing state variable values}, \textit{Initializing totalSupply in constructor}, uses \texttt{External} visibility instead of Public, \etc.
-	\item Using reusable blocks of code by OpenZeppelin made the code complex and challenging for auditing tools. Developers need to manually check the code for vulnerabilities.
-	\item Having different \erc implementation minimizes the possibility of bugs that existed in the past.Between 17 March 2017 and 13 July 2017, OpenZeppelin implemented the wrong interface in their framework. It affected 130 tokens including biggest tokens such as Binance and OmiseGO~\cite{ErcBug}.
+	\item \textit{Fail-Safe Mode} is a built-in feature of \sys while OpenZeppelin requires incorporation of \texttt{Pausable.sol} contract.
+	\item OpenZeppelin requires other optimizations such as \textit{Locking the pragma}, Emitting Change event when changing state variables (\eg \_decimals = decimals\_), \textit{Initializing totalSupply in constructor}, using \texttt{External} visibility instead of Public to increase readability (\ie no internal call) and consume less gas, Avoiding similar variable names (\eg \_name = name\_), \etc
+	\item Using reusable codes has made the OpenZeppelin code complex and challenging for security tools. Developers need to manually check the code for vulnerabilities instead of using vulnerability assessment tools. Additionally, most of the security tools are not able to import libraries/interfaces from external files (\eg SafeMath.sol, IERC20.sol). \sys has flat layout and all codes are in one file. It is easier for developers to understand and modify it. It can be also directly uploaded to audit tools without any modification.
+	\item Having different \erc implementation minimizes the possibility of bugs that existed in the past. Between 17 March 2017 and 13 July 2017, OpenZeppelin implemented the wrong interface in their framework. It affected 130 tokens including biggest tokens~\cite{ErcBug}. Diversity in \erc implementation can reduce the impact of such errors.
 \end{itemize}
 }
 
-In addition to the standard \erc methods, we also implement complementary features for exchanging tokens and ETH. These are only useful for tokens with a fixed exchange rate, which is managed by the \texttt{exchangeRate} variable.
+In addition to the standard \erc methods, we also implement complementary features such as \texttt{sell()} and \texttt{buy()} for exchanging tokens and ETH. \texttt{sell()} allows token holders to exchange tokens for ETH and \texttt{buy()} accepts ETH by adjusting buyer's token balance. {\blue This can be considered as a financial incentive in which it is possible to buy and sell tokens at a fixed price by the token contract. Otherwise, buyers will have to wait for the token to be listed on crypto-exchanges (if it ever happens) or look for a buyer themselves. In addition, it reduces the cost of token exchange by eliminating crypto-exchange's fees.}
+
+%These are only useful for tokens with a fixed exchange rate, which is managed by the \texttt{exchangeRate} variable.
 
 %\begin{enumerate}
 %	\item \textbf{Buying tokens:} \erc tokens can be offered to users for purchase. Users call the \texttt{buy()} function which accepts ETH (\ie defined as \textit{payable}) to be held by the \erc contract. The contract calculates the equivalent number of tokens based on the current exchange rate, increases the token balance of the buyer, and logs a \texttt{Buy} event.
