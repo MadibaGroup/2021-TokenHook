@@ -1,35 +1,35 @@
 % !TEX root = ../main.tex
 
-\subsection{A sample of best practices}\label{section:bp}
+\section{A sample of best practices}\label{section:bp}
 
 In addition to reviewing known vulnerabilities, we also took into account a number of best practices for developing \erc tokens. Again, due to space, we highlight a few that have been accepted by the Ethereum community to proactively prevent known vulnerabilities\cite{TokenBP}. Some best practices are specific to \erc, while others are generic for all DApps---in which case, we discuss their relevance to \erc and to \sys.
 
-\subsubsection{Compliance with \erc.}
+\subsection{Compliance with \erc.}
 
 According to the \erc specifications, all six methods and two events must be implemented and are not optional. Moreover, ignoring them can cause failed function calls by other applications (\ie crypto-wallets, crypto-exchanges, web services, \etc) which are expecting them. Tokens that do not implement all methods (\eg \texttt{approve()} or \texttt{transferFrom()}) might also be vulnerable to complex attacks (\eg Fake deposit vulnerability\cite{DEPOSafe}, Missing return value bug\cite{ErcBug}).
 
-\subsubsection{External visibility.}\label{subsec:external}
+\subsection{External visibility.}\label{subsec:external}
 
 Solidity supports two types of \textit{function calls}: internal and external\cite{SolidityDoc}. { \blue Functions calls are different than functions visibility (\ie Public, Private, Internal and External).} Internal function calls expect arguments to be in memory and the EVM copies the arguments to memory. Internal calls use \texttt{JUMP} opcodes instead of creating an \textit{EVM call}.\footnote{Also known as ``message call'' when a contract calls a function of another contract.} Conversely, External function calls create an \textit{EVM call} and can read arguments directly from the \texttt{calldata} space. This is cheaper than allocating new memory and designed as a read-only byte-addressable space where the data parameter of a transaction or call is held\cite{EthInDepth}. A best practice is to use external visibility when we expect that functions will be called externally.
 
-\subsubsection{Fail-Safe Mode.}
+\subsection{Fail-Safe Mode.}
 
 In the case of a detected anomaly or attack on a deployed \erc token, the functionality of the token can be frozen pending further investigation. { \blue Similar to Liberty Reserve digital currency service\cite{LibertyReserve}, governments may compel to stop the token's ability to operate.} To freeze all functionality of a token, the owner can call \texttt{pause()} function. It then sets a lock variable and methods are marked with \texttt{notPaused} modifier, throw exceptions until functionality is restored using \texttt{unpause()}.
 
 
-\subsubsection{Firing events.}
+\subsection{Firing events.}
 
 In \erc standard, there are two defined events: \texttt{Approval} and \texttt{Transfer}. The first event logs successful allowance changes by token holders and the second logs successful token transfers by the \texttt{transfer()} and \texttt{transferFrom()} methods. These two events must be fired to notify external application on occurred changes. The external application (\eg TokenScope\cite{TokenScope}) might use them to detect inconsistent behaviors, update balances, show UI notifications, or to check new token approvals. It is a best practice to fire an event for every state variable change.
 
-\subsubsection{Unexpected revert.}
+\subsection{Unexpected revert.}
 
 A function that attempts to complete many operations that individually may revert could deadlock if one operation always fails. For example, \texttt{transfer()} can throw an exception---if one transfer in a sequence fails, the whole sequence fails. One standard practice is to account for ETH owed and require withdrawals through a dedicated function. In \sys, ETH is only transferred to a single party in a single function \texttt{sell()}. It seems overkill to implement a whole accounting system for this. As a consequence, a seller that is incapable of receiving ETH (\eg operating from a contract that is not payable) will be unable to sell their tokens for ETH. However they can recover by transferring the tokens to a new address to sell from. 
 
-\subsubsection{Global or Miner controlled variables.}
+\subsection{Global or Miner controlled variables.}
 
 Since malicious miners have the ability to manipulate global Solidity variables (\eg \texttt{block.timestamp}, \linebreak\texttt{block.number}, \texttt{block.difficulty}, \etc), it is recommended to avoid these variables in \erc tokens.
 
-\subsubsection{Proxy contracts.}
+\subsection{Proxy contracts.}
 
 An \erc token can be deployed with a pair of contracts: a proxy contract that passes through all the function calls to a second functioning \erc contract\cite{ProxyContract,ProxyPatterns}. One use of proxy contract is when upgrades are required---a new functional contract can be deployed and the proxy is modified to point at the update. Form audit point of view, it is recommended to have non-upgradable \erc tokens. Initial token audit might show it as secure while the upgraded versions contains new vulnerabilities that did not exist at the time of initial audit.
 
