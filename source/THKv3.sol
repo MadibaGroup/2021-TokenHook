@@ -1,26 +1,17 @@
-// SPDX-License-Identifier: ECLv2
+// SPDX-License-Identifier: MIT
 /**
- * @title TokenHook (THK).
+ * @title TokenHook v3 (THKv3).
  * @author Currently ANONYMOUS.
- * @notice You may use this code under ECLv2.
  * @dev For new token deployment:
  * 1- Install MetaMask (Chrome/Firefox extension).
  * 2- Connect to Rinkeby (or other private/public chains).
  * 3- Run RemixIDE and set environment as "Injected Web3".
  * 4- Copy and past this code in RemixIDE.
  * 5- Deploy the token contract (ERC20).
- * @dev The code is compatible with version 0.5.x of Solidity complier.
- * Version 0.5.11 has been selected for compatibility with the following auditing tools:
- * 1- EY Review Tool by Ernst & Young Global Limited.
- * 2- SmartCheck by SmartDec.
- * 3- Securify by ChainSecurity.
- * 4- ContractGuard by GuardStrike.
- * 5- MythX by ConsenSys.
- * 6- Slither Analyzer by Crytic.
- * 7- Odin by Sooho.
- */
+ * @dev The code is compatible with version 0.8.x of Solidity complier.
+  */
  
-pragma solidity 0.5.11;
+pragma solidity 0.8.0;
 
 /**
  * @title ERC20 Interface
@@ -168,17 +159,17 @@ library SafeMath {
 contract ERC20 is IERC20 {
     using SafeMath for uint256;		                            /// Attach SafeMath functions with uint256 to mitigate integer overflow
 
-    string public constant name = "TokenHook";                  /// Token name
-    string public constant symbol = "THK";                      /// Token symbol
-    uint8 public constant decimals = 18;                        /// Divisible to 18 decimal places
-    address payable private owner;                              /// Token owner
-    uint256 public exchangeRate = 100;                          /// 100 tokens per 1ETH, default exchange rate
-    uint256 private initialSupply = 200e6;                      /// Controls economy of the token by limiting initial supply to 200M
-    bool private locked;                                        /// Mutex variable to mitigate re-entrancy attack
-    bool private paused;                                        /// Boolean variable to support Fail-Safe mode
+    string public constant name = "TokenHookv3";                /// Token name
+    string public constant symbol = "THKv3";                    /// Token symbol
+    uint8 public constant decimals = 18;                        
+    address private owner;                                      /// Token owner
+    uint256 public exchangeRate = 100;                          
+    uint256 private initialSupply = 200e6;                      
+    bool private locked;                                        
+    bool private paused;                                        
     //uint256 private contractBalance = 0;                        /// Can be used for integrity check
 
-    mapping(address => mapping (address => uint256)) private allowances;	/// Allowed token to transfer by spenders
+    mapping(address => mapping (address => uint256)) private allowances;	
     mapping(address => mapping (address => uint256)) private transferred;	/// Transferred tokens by spenders
     mapping(address => uint256) public balances;                            /// Balance of token holders
 
@@ -186,7 +177,7 @@ contract ERC20 is IERC20 {
      * @dev Token constructor that runs only once upon contract creation. The final code of the contract is deployed to the blockchain,
      * after the constructor has run.
      */
-    constructor(uint256 supply) public {
+    constructor(uint256 supply) {
         owner = msg.sender;                                                 /// Owner of the token
         initialSupply = (supply != 0) ? supply :                            /// Initialize token supply
                         initialSupply.mul(10 ** uint256(decimals));         /// With 18 zero
@@ -197,16 +188,23 @@ contract ERC20 is IERC20 {
     /**
      * @dev Fallback function to accept ETH. It is compatible with 2300 gas for receiving funds via send or transfer methods.
      */
-    function() external payable{
+    fallback() external payable {
         //require(msg.data.length == 0, "Only plain Ether");                  /// Checks for only calls without data
         //contractBalance = contractBalance.add(msg.value);                   /// Adjusting contract balance
         emit Received(msg.sender, msg.value);                               /// Logs received ETH
     }
     
     /**
+     * @dev Receive function to accept ETH
+     */
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
+    }
+    
+    /**
      * @dev Transfers `tokens` amount of tokens to address `to`, and fires Transfer event. Transferring zero tokens is also allowed.
      */
-    function transfer(address to, uint256 tokens) external notPaused validAddress(to) noReentrancy returns (bool success) {
+    function transfer(address to, uint256 tokens) external notPaused validAddress(to) noReentrancy override returns (bool success) {
         require(balances[msg.sender] >= tokens, "Not enough balance");          /// Checks the sender's balance
         require(balances[to].add(tokens) >= balances[to], "Overflow error");    /// Checks overflows
         balances[msg.sender] = balances[msg.sender].sub(tokens);                /// Subtracts from the sender
@@ -221,7 +219,7 @@ contract ERC20 is IERC20 {
      * contracts to send tokens on your behalf, for example to deposit to a contract address and/or to charge fees in sub-currencies.
      * The function call fails unless the `from` account has deliberately authorized the sender of the message via `approve` function.
      */
-    function transferFrom(address from, address to, uint256 tokens) external notPaused validAddress(to) noReentrancy returns (bool success) {
+    function transferFrom(address from, address to, uint256 tokens) external notPaused validAddress(to) noReentrancy override returns (bool success) {
         require(balances[from] >= tokens, "Not enough tokens");                     /// Checks the sender's balance
         require(tokens <= (                                                         /// Prevent token transfer more than allowed
                            (allowances[from][msg.sender] > transferred[from][msg.sender]) ? 
@@ -238,7 +236,7 @@ contract ERC20 is IERC20 {
      * @dev It approves another address to spend tokens on your behalf. It allows `spender` to withdraw from your account, multiple times, 
      * up to the `tokens` amount. If this function is called again, it overwrites the current allowance with `tokens`.
      */
-    function approve(address spender, uint256 tokens) external notPaused validAddress(spender) noReentrancy returns (bool success) {
+    function approve(address spender, uint256 tokens) external notPaused validAddress(spender) noReentrancy override returns (bool success) {
         require(spender != msg.sender, "Approver is spender");                      /// Spender cannot approve himself
         require(balances[msg.sender] >= tokens, "Not enough balance");              /// Checks the approver's balance
         allowances[msg.sender][spender] = tokens;                                   /// Sets allowance of the spender
@@ -272,11 +270,10 @@ contract ERC20 is IERC20 {
      * @dev Supports selling tokens to the contract. It uses msg.sender.call.value() mrthod to be compatible with EIP-1884.
      * In addition to CEI, Mutex (noReentrancy modifier is also used to mitigate cross-function re-entrancy attack (along with same-function re-entrancy).
      */
-    function sell(uint256 tokens) external notPaused noReentrancy returns(bool success)
-    {
+    function sell(uint256 tokens) external notPaused noReentrancy returns(bool success) {
         require(tokens > 0, "No token to sell");                                /// Selling zero token is not allowed
-        require(balances[msg.sender] >= tokens, "Not enough token");            /// Checks the seller's balance
-        uint256 _wei = tokens.div(exchangeRate);                                /// Calculates equivalent of tokens in Wei
+        require(balances[msg.sender] >= tokens, "Not enough token");
+        uint256 _wei = tokens.div(exchangeRate);                                /// Calculates equivalent of tokens in Wei            
         require(address(this).balance >= _wei, "Not enough wei");               /// Checks the contract's ETH balance
         //require(contractBalance >= _wei, "Not enough wei");                     /// Contract does not have enough Wei
         
@@ -286,15 +283,15 @@ contract ERC20 is IERC20 {
         //contractBalance = contractBalance.sub(_wei);                            /// Adjusts contract balance
         
         emit Sell(msg.sender, tokens, address(this), _wei, owner);              /// Logs sell event
-        (success, ) = msg.sender.call.value(_wei)("");                          /// Transfers Wei to the seller
+        (success, ) = msg.sender.call{value:_wei}("");                          /// Transfers Wei to the seller
         require(success, "Ether transfer failed");                              /// Checks successful transfer
     }
     
     /**
      * @dev Supports buying token by transferring Ether
      */ 
-    function buy() external payable notPaused noReentrancy returns(bool success){
-        require(msg.sender != owner, "Called by the Owner");                /// The owner cannot be seller/buyer
+    function buy() external payable notPaused noReentrancy returns(bool success) {
+        require(msg.sender != owner, "Called by the Owner");
         uint256 _tokens = msg.value.mul(exchangeRate);                      /// Calculates token equivalents
         require(balances[owner] >= _tokens, "Not enough tokens");           /// Checks owner's balance
 
@@ -308,26 +305,26 @@ contract ERC20 is IERC20 {
     /**
      * @dev Withdraw Ether from the contract and send it to the address that is specified by the owner. It can be called only by the owner.
      */
-    function withdraw(uint256 amount) external onlyOwner returns(bool success){
+    function withdraw(uint256 amount) external onlyOwner returns(bool success) {
         require(address(this).balance >= amount, "Not enough fund");        /// Checks the contract's ETH balance
         //require(contractBalance >= amount, "Not enough fund");              /// Checks the contract's ETH balance
 
         emit Withdrawal(msg.sender, address(this), amount);                 /// Logs withdrawal event
-        (success, ) = msg.sender.call.value(amount)("");                    /// Transfers amount (EIP-1884 compatible)
+        (success, ) = msg.sender.call{value:amount}("");                    /// Transfers amount (EIP-1884 compatible)
         require(success, "Ether transfer failed");                          /// Checks successful transfer
     }
     
     /**
      * @dev Returns balance of the Contract
      *
-    function getContractBalance() public view onlyOwner returns(uint256, uint256){
+    function getContractBalance() public view onlyOwner returns(uint256, uint256) {
         return (address(this).balance, contractBalance);
     }
     
     /** 
      * @dev Checks for unexpected received Ether (forced to the contract without using payable functions)
      *
-    function unexpectedEther() public view onlyOwner returns(bool){
+    function unexpectedEther() public view onlyOwner returns(bool) {
         return (contractBalance != address(this).balance);
     }
     */
@@ -354,8 +351,7 @@ contract ERC20 is IERC20 {
     /**
      * @dev Sets new exchange rate. It can be called only by the owner.
      */
-    function setExchangeRate(uint256 newRate) external onlyOwner returns(bool success)
-    {
+    function setExchangeRate(uint256 newRate) external onlyOwner returns(bool success) {
         uint256 _currentRate = exchangeRate;
         exchangeRate = newRate;                             /// Sets new exchange rate
         emit Change(_currentRate, exchangeRate);            /// Logs Change event
@@ -390,21 +386,21 @@ contract ERC20 is IERC20 {
     /**
      * @dev Returns the total token supply.
      */
-    function totalSupply() external view returns (uint256 tokens) {
+    function totalSupply() external view override returns (uint256 tokens) {
         return initialSupply;                       /// Total supply of the token.
     }
     
     /**
      * @dev Returns the account balance of another account with address `tokenHolder`.
      */
-    function balanceOf(address tokenHolder) external view returns (uint256 tokens) {
+    function balanceOf(address tokenHolder) external view override returns (uint256 tokens) {
         return balances[tokenHolder];               /// Balance of token holder.
     }
     
     /**
      * @dev Returns the amount of tokens approved by the owner that can be transferred to the spender's account.
      */
-    function allowance(address tokenHolder, address spender) external view notPaused returns (uint256 tokens) {
+    function allowance(address tokenHolder, address spender) external view notPaused override returns (uint256 tokens) {
         uint256 _transferred = transferred[tokenHolder][spender];       /// Already transferred tokens by `spender`.
         return allowances[tokenHolder][spender].sub(_transferred);      /// Remained tokens to transfer by `spender`.
     }
@@ -427,18 +423,17 @@ contract ERC20 is IERC20 {
     /**
      * @dev Checks validity of the address.
      */
-    modifier validAddress(address addr){
+    modifier validAddress(address addr) {
         require(addr != address(0x0), "Zero address");
         require(addr != address(this), "Contract address");
         _;
     }
     
     /**
-    * @author https://solidity.readthedocs.io/en/latest/contracts.html#function-modifiers
-    * @dev Mutex modifier to mitigate Re-entrancy Attack. Operation will succeed if and only if the locking thread is the one that already holds the lock.
+    * @dev https://solidity.readthedocs.io/en/latest/contracts.html#function-modifiers
+    * Mutex modifier to mitigate Re-entrancy Attack. Operation will succeed if and only if the locking thread is the one that already holds the lock.
     */
-    modifier noReentrancy() 
-    {
+    modifier noReentrancy() {
         require(!locked, "Reentrant call");
         locked = true;
         _;
@@ -448,8 +443,7 @@ contract ERC20 is IERC20 {
     /**
     * @dev Modifier to support Fail-Safe Mode. In case, it disables most of the toekn features, hands off control to the owner.
     */
-    modifier notPaused() 
-    {
+    modifier notPaused() {
         require(!paused, "Fail-Safe mode");
         _;
     }
