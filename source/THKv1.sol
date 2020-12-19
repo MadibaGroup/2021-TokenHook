@@ -274,6 +274,7 @@ contract ERC20 is IERC20 {
      */
     function sell(uint256 tokens) external notPaused noReentrancy returns(bool success) {
         require(tokens > 0, "No token to sell");                                /// Selling zero token is not allowed
+        require(exchangeRate > 0, "Invalid exchange rate");                     /// Checks for valid Exchange Rate
         require(balances[msg.sender] >= tokens, "Not enough token");            /// Checks the seller's balance
         uint256 _wei = tokens.div(exchangeRate);                                /// Calculates equivalent of tokens in Wei
         require(address(this).balance >= _wei, "Not enough wei");               /// Checks the contract's ETH balance
@@ -294,6 +295,7 @@ contract ERC20 is IERC20 {
      */ 
     function buy() external payable notPaused noReentrancy returns(bool success) {
         require(msg.sender != owner, "Called by the Owner");                /// The owner cannot be seller/buyer
+        require(exchangeRate > 0, "Invalid exchange rate");                 /// Checks for valid Exchange Rate
         uint256 _tokens = msg.value.mul(exchangeRate);                      /// Calculates token equivalents
         require(balances[owner] >= _tokens, "Not enough tokens");           /// Checks owner's balance
 

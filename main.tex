@@ -7,6 +7,7 @@
 \usepackage{multirow}
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{enumitem}
+\setcounter{secnumdepth}{3}
 \input{setup/packages}
 \input{setup/macros}
 \input{setup/table}
@@ -16,7 +17,6 @@
 \newcommand{\num}{82\xspace}
 \newcommand{\prct}{99.5\%\xspace}
 \newcommand{\blue}{\color{blue}}
-\setcounter{secnumdepth}{3}
 
 % = = = = = Title = = = = = %
 
@@ -35,7 +35,6 @@
 % = = = = = Main Body = = = = = %
 
 \input{sections/introduction}
-\input{sections/bestpractices}
 \input{sections/proposal}
 \input{sections/audits}
 \input{sections/comparison}
@@ -45,13 +44,12 @@
 % = = = = = Bibliography = = = = = %
 
 {\footnotesize\bibliography{bib/references}}
-%\nocite{*}
 
 % = = = = = End Notes = = = = = %
 
 \appendix
-
 \input{sections/vulnerabilities}
+\input{sections/bestpractices}
 
 \end{document}
 
