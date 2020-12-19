@@ -6,7 +6,7 @@ Due to space, we highlight a few best practices that have been accepted by the E
 
 \subsection{Compliance with \erc.}\label{subsec:compl}
 
-According to the \erc specifications, all six methods and two events must be implemented and are not optional. {\blue Tokens that do not implement all methods (\eg GNT which does not implement the \texttt{approve()}, \texttt{allowance()} and \texttt{transferFrom()} functions due to \textit{front-running}\cite{GNT}) can cause failed function calls from other applications (\ie crypto-wallets, crypto-exchanges, web services, \etc) which are expecting them. They might also be vulnerable to complex attacks (\eg Fake deposit vulnerability\cite{DEPOSafe}, Missing return value bug\cite{ErcBug}).}
+According to the \erc specifications, all six methods and two events must be implemented and are not optional. {\blue Tokens that do not implement all methods (\eg GNT which does not implement the \texttt{approve()}, \texttt{allowance()} and \texttt{transferFrom()} functions due to \textit{front-running}\cite{GNT}) can cause failed function calls from other applications. They might also be vulnerable to complex attacks (\eg Fake deposit vulnerability\cite{DEPOSafe}, Missing return value bug\cite{ErcBug}).}
 
 \subsection{External visibility.}\label{subsec:external}
 
