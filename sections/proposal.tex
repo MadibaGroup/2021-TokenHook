@@ -73,7 +73,13 @@ OpenZeppelin's implementation is actually part of a small portfolio of implement
 
 \sys makes other improvements over the OpenZeppelin implementation. OpenZeppelin introduces two new functions to mitigate the multiple withdraw attack: \texttt{increaseAllowance()} and \texttt{decreaseAllowance()} however these are not part of the \sys standard and are not  interoperable with other applications that expect to use \texttt{approve()} and \texttt{transferFrom()}. \sys secures \texttt{transferFrom()} to prevent the attack (following~\cite{ERC20MWA}) and is interoperable with legacy DApps and web apps. Additionally, \sys mitigates the \textit{frozen Ether} issue by introducing a \texttt{withdraw()} function, while ETH forced into the OpenZeppelin implementation is forever unrecoverable. Both contracts implement a \textit{fail-safe mode}, however this logic is internal to \sys, while OpenZeppelin requires an external \texttt{Pausable.sol} contract.
 
-OpenZeppelin requires other optimizations such as \textit{locking the pragma}, emitting a \textit{Change} event (\cf TokenScope\cite{TokenScope}) when updating state variables (\eg \texttt{\_decimals=decimals\_} in \texttt{\_setupDecimals()}),  Initializing \textit{totalSupply} in constructor, using \texttt{External} visibility instead of public to increase readability (\ie no internal call) and consume less gas, Avoiding similar variable names (\eg \texttt{\_name=name\_} in \texttt{constructor()}), Using \textit{mixedCase} format when declaring variable and functions (\eg \texttt{\_symbol}, \texttt{\_decimals}), \etc
+% JC: Best guess at this paragraph (I could tell which were statements about us and which were statements about OpenZeppplin)
+
+\textblue{OpenZeppelin requires other optimizations such as \textit{locking the pragma}. We emit a \textit{Change} event (\cf TokenScope\cite{TokenScope}) when updating state variables (\eg \texttt{\_decimals=decimals\_} in \texttt{\_setupDecimals()}). We initialize \textit{totalSupply} in the constructor. We use \texttt{external} visibility instead of public to increase readability (\ie no internal calls) and consume less gas. Finally, these are very minor but we try to make \sys code more readable by avoiding similar variable names (\eg \texttt{\_name=name\_} in \texttt{constructor()}) and using \textit{mixedCase} format when declaring variable and functions. }
+
+%(\eg \texttt{\_symbol}, \texttt{\_decimals}). 
+
+
 
 
 
