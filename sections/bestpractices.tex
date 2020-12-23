@@ -18,15 +18,15 @@ In the case of a detected anomaly or attack on a deployed \erc token, the functi
 
 \subsection{Firing events.}\label{subsec:evnts}
 
-In \erc standard, there are two defined events: \texttt{Approval} and \texttt{Transfer}. The first event logs successful allowance changes by token holders and the second logs successful token transfers by the \texttt{transfer()} and \texttt{transferFrom()} methods. These two events must be fired to notify external application on occurred changes. The external application (\eg TokenScope\cite{TokenScope}) might use them to detect inconsistent behaviors, update balances, show UI notifications, or to check new token approvals. It is a best practice to fire an event for every state variable change.
+In \erc standard, there are two defined events: \texttt{Approval} and \texttt{Transfer}. The first event logs successful allowance changes by token holders and the second logs successful token transfers by the \texttt{transfer()} and \texttt{transferFrom()}. These two events must be fired to notify external application on occurred changes. The external application (\eg TokenScope\cite{TokenScope}) might use them to detect inconsistent behaviors, update balances, show UI notifications, or to check new token approvals. It is a best practice to fire an event for every state variable change.
 
-\subsection{Global or Miner controlled variables.}\label{subsec:miner}
-
-Since malicious miners have the ability to manipulate global Solidity variables (\eg \texttt{block.timestamp}, \texttt{block.number}, \texttt{block.difficulty}, \etc), it is recommended to avoid these variables in \erc tokens.
-
-%\subsection{Proxy contracts.}\label{subsec:prxy}
+%\subsection{Global or Miner controlled variables.}\label{subsec:miner}
 %
-%An \erc token can be deployed with a pair of contracts: a proxy contract that passes through all the function calls to a second functioning \erc contract\cite{ProxyContract,ProxyPatterns}. One use of proxy contract is when upgrades are required---a new functional contract can be deployed and the proxy is modified to point at the update. Form audit point of view, it is recommended to have non-upgradable \erc tokens. 
+%Since malicious miners have the ability to manipulate global Solidity variables (\eg \texttt{block.timestamp}, \texttt{block.number}, \texttt{block.difficulty}, \etc), it is recommended to avoid these variables in \erc tokens.
+
+\subsection{Proxy contracts.}\label{subsec:prxy}
+
+An \erc token can be deployed with a pair of contracts: a proxy contract that passes through all the function calls to a second functioning \erc contract\cite{ProxyContract,ProxyPatterns}. One use of proxy contract is when upgrades are required---a new functional contract can be deployed and the proxy is modified to point at the update. Form audit point of view, it is recommended to have non-upgradable \erc tokens. 
 
 \subsection{DoS with Unexpected revert.}\label{subsec:rvt}
 
