@@ -6,16 +6,15 @@ Due to space, we highlight a few best practices that have been accepted by the E
 
 \subsection{Compliance with \erc.}\label{subsec:compl}
 
-According to the \erc specifications, all six methods and two events must be implemented and are not optional. {\blue Tokens that do not implement all methods (\eg GNT which does not implement the \texttt{approve()}, \texttt{allowance()} and \texttt{transferFrom()} functions due to \textit{front-running}\cite{GNT}) can cause failed function calls from other applications. They might also be vulnerable to complex attacks (\eg Fake deposit vulnerability\cite{DEPOSafe}, Missing return value bug\cite{ErcBug}).}
+According to the \erc specifications, all six methods and two events must be implemented and are not optional. Tokens that do not implement all methods (\eg GNT which does not implement the \texttt{approve()}, \texttt{allowance()} and \texttt{transferFrom()} functions due to \textit{front-running}\cite{GNT}) can cause failed function calls from other applications. They might also be vulnerable to complex attacks (\eg Fake deposit vulnerability\cite{DEPOSafe}, Missing return value bug\cite{ErcBug}).
 
 \subsection{External visibility.}\label{subsec:external}
 
-Solidity supports two types of \textit{function calls}: internal and external\cite{SolidityDoc}. { \blue Functions calls are different than functions visibility (\ie Public, Private, Internal and External).} Internal function calls expect arguments to be in memory and the EVM copies the arguments to memory. Internal calls use \texttt{JUMP} opcodes instead of creating an \textit{EVM call}.\footnote{Also known as ``message call'' when a contract calls a function of another contract.} Conversely, External function calls create an \textit{EVM call} and can read arguments directly from the \texttt{calldata} space. This is cheaper than allocating new memory and designed as a read-only byte-addressable space where the data parameter of a transaction or call is held\cite{EthInDepth}. A best practice is to use external visibility when we expect that functions will be called externally.
+Solidity supports two types of \textit{function calls}: internal and external~\cite{SolidityDoc}. Note that functions calls are different than functions visibility (\ie Public, Private, Internal and External) which confusingly uses overlapping terminology. Internal function calls expect arguments to be in memory and the EVM copies the arguments to memory. Internal calls use \texttt{JUMP} opcodes instead of creating an \textit{EVM call}.\footnote{Also known as ``message call'' when a contract calls a function of another contract.} Conversely, External function calls create an \textit{EVM call} and can read arguments directly from the \texttt{calldata} space. This is cheaper than allocating new memory and designed as a read-only byte-addressable space where the data parameter of a transaction or call is held\cite{EthInDepth}. A best practice is to use external visibility when we expect that functions will be called externally.
 
 \subsection{Fail-Safe Mode.}\label{subsec:failsf}
 
-In the case of a detected anomaly or attack on a deployed \erc token, the functionality of the token can be frozen pending further investigation. { \blue Similar to Liberty Reserve digital currency service\cite{LibertyReserve}, governments may compel to stop the token's ability to operate.} 
-
+In the case of a detected anomaly or attack on a deployed \erc token, the functionality of the token can be frozen pending further investigation. For regulated tokens, the ability for a regulator to issue a `cease trade' order is also generally required. 
 
 \subsection{Firing events.}\label{subsec:evnts}
 
