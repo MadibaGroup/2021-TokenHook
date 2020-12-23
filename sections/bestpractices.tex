@@ -24,9 +24,9 @@ In \erc standard, there are two defined events: \texttt{Approval} and \texttt{Tr
 
 Since malicious miners have the ability to manipulate global Solidity variables (\eg \texttt{block.timestamp}, \texttt{block.number}, \texttt{block.difficulty}, \etc), it is recommended to avoid these variables in \erc tokens.
 
-\subsection{Proxy contracts.}\label{subsec:prxy}
-
-An \erc token can be deployed with a pair of contracts: a proxy contract that passes through all the function calls to a second functioning \erc contract\cite{ProxyContract,ProxyPatterns}. One use of proxy contract is when upgrades are required---a new functional contract can be deployed and the proxy is modified to point at the update. Form audit point of view, it is recommended to have non-upgradable \erc tokens. 
+%\subsection{Proxy contracts.}\label{subsec:prxy}
+%
+%An \erc token can be deployed with a pair of contracts: a proxy contract that passes through all the function calls to a second functioning \erc contract\cite{ProxyContract,ProxyPatterns}. One use of proxy contract is when upgrades are required---a new functional contract can be deployed and the proxy is modified to point at the update. Form audit point of view, it is recommended to have non-upgradable \erc tokens. 
 
 \subsection{DoS with Unexpected revert.}\label{subsec:rvt}
 
