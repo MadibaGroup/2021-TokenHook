@@ -1,7 +1,15 @@
 % !TEX root = ../main.tex
 
 \begin{abstract}
-\erc is the most prominent Ethereum standard for transferable tokens. Tokens implementing the \erc interface can interoperate with a large number of already deployed internet-based services and Ethereum-based smart contracts. In recent years, security vulnerabilities in \erc implementations have been uncovered. We systemize these across 7 auditing tools into a set of \num distinct vulnerabilities and best practices. Next, we use our experience to provide a new secure implementation of the \erc interface, \sys, that is freely\footnote{Implementation on Etherscan with source code and deployed on Mainnet and Rinkeby: \url{https://bit.ly/35FMbAf}, \url{https://bit.ly/33wDENx}} available. Reference \erc implementations have been slowly abandoned over time. \sys has enhanced security properties and stronger compliance with best practices compared to the sole surviving reference implementation (from OpenZeppelin) in the \erc specification. 
+\erc is the most prominent Ethereum standard for fungible tokens. Tokens implementing the \erc interface can interoperate with a large number of already deployed internet-based services and Ethereum-based smart contracts. In recent years, security vulnerabilities in \erc have received special attention due to their widespread use and increased value. We systemize these vulnerabilities and their applicability to \erc tokens. Next, we use our experience to provide a new secure implementation of the \erc interface, \sys, that is freely available in Vyper and Solidity. We evaluate the quality of the code across seven auditing tools by testing the functionality and efficiency of coding. \sys has enhanced security properties and stronger compliance with best practices compared to the sole surviving reference implementation (from OpenZeppelin) in the \erc specification. 
 \end{abstract}
 
+\begin{IEEEkeywords}
+	
+	Ethereum; Vyper; Solidity; \erc tokens; Security; Blockchain;
+	
+\end{IEEEkeywords}
 
+
+%into a set of \num distinct vulnerabilities and best practices
+%Reference \erc implementations have been slowly abandoned over time.

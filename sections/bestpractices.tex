@@ -1,36 +1,31 @@
 % !TEX root = ../main.tex
 
 \section{A sample of best practices}\label{sec:bp}
-
-Due to space, we highlight a few best practices that have been accepted by the Ethereum community to proactively prevent known vulnerabilities\cite{TokenBP}. Some best practices are specific to \erc, while others are generic for all DApps---in which case, we discuss their relevance to \erc.
+Due to space, we highlight a few best practices for developing DApps. Some best practices are specific to \erc, while others are generic for all DApps---in which case, we discuss their relevance to \erc.
 
 \subsection{Compliance with \erc.}\label{subsec:compl}
-
 According to the \erc specifications, all six methods and two events must be implemented and are not optional. Tokens that do not implement all methods (\eg GNT which does not implement the \texttt{approve()}, \texttt{allowance()} and \texttt{transferFrom()} functions due to \textit{front-running}\cite{GNT}) can cause failed function calls from other applications. They might also be vulnerable to complex attacks (\eg Fake deposit vulnerability\cite{DEPOSafe}, Missing return value bug\cite{ErcBug}).
 
 \subsection{External visibility.}\label{subsec:external}
-
 Solidity supports two types of \textit{function calls}: internal and external~\cite{SolidityDoc}. Note that functions calls are different than functions visibility (\ie Public, Private, Internal and External) which confusingly uses overlapping terminology. Internal function calls expect arguments to be in memory and the EVM copies the arguments to memory. Internal calls use \texttt{JUMP} opcodes instead of creating an \textit{EVM call}.\footnote{Also known as ``message call'' when a contract calls a function of another contract.} Conversely, External function calls create an \textit{EVM call} and can read arguments directly from the \texttt{calldata} space. This is cheaper than allocating new memory and designed as a read-only byte-addressable space where the data parameter of a transaction or call is held\cite{EthInDepth}. A best practice is to use external visibility when we expect that functions will be called externally.
 
 \subsection{Fail-Safe Mode.}\label{subsec:failsf}
-
 In the case of a detected anomaly or attack on a deployed \erc token, the functionality of the token can be frozen pending further investigation. For regulated tokens, the ability for a regulator to issue a `cease trade' order is also generally required. 
 
 \subsection{Firing events.}\label{subsec:evnts}
-
 In \erc standard, there are two defined events: \texttt{Approval} and \texttt{Transfer}. The first event logs successful allowance changes by token holders and the second logs successful token transfers by the \texttt{transfer()} and \texttt{transferFrom()}. These two events must be fired to notify external application on occurred changes. The external application (\eg TokenScope\cite{TokenScope}) might use them to detect inconsistent behaviors, update balances, show UI notifications, or to check new token approvals. It is a best practice to fire an event for every state variable change.
 
-%\subsection{Global or Miner controlled variables.}\label{subsec:miner}
-%
-%Since malicious miners have the ability to manipulate global Solidity variables (\eg \texttt{block.timestamp}, \texttt{block.number}, \texttt{block.difficulty}, \etc), it is recommended to avoid these variables in \erc tokens.
+\subsection{Global or Miner controlled variables.}\label{subsec:miner}
+Since malicious miners have the ability to manipulate global Solidity variables (\eg \texttt{block.timestamp}, \texttt{block.number}, \texttt{block.difficulty}, \etc), it is recommended to avoid these variables in \erc tokens.
 
 \subsection{Proxy contracts.}\label{subsec:prxy}
-
 An \erc token can be deployed with a pair of contracts: a proxy contract that passes through all the function calls to a second functioning \erc contract\cite{ProxyContract,ProxyPatterns}. One use of proxy contract is when upgrades are required---a new functional contract can be deployed and the proxy is modified to point at the update. Form audit point of view, it is recommended to have non-upgradable \erc tokens. 
 
 \subsection{DoS with Unexpected revert.}\label{subsec:rvt}
-
 A function that attempts to complete many operations that individually may revert could deadlock if one operation always fails. For example, \texttt{transfer()} can throw an exception---if one transfer in a sequence fails, the whole sequence fails. One standard practice is to account for ETH owed and require withdrawals through a dedicated function. In \sys, ETH is only transferred to a single party in a single function \texttt{sell()}. It seems overkill to implement a whole accounting system for this. As a consequence, a seller that is incapable of receiving ETH (\eg operating from a contract that is not payable) will be unable to sell their tokens for ETH. However they can recover by transferring the tokens to a new address to sell from. 
 
-%\subsubsection{DoS with block gas limit.}\label{subsec:glimit}
-%The use of loops in contracts is not efficient and requires considerable amount of Gas to execute. It might also cause DoS attack since blocks has a \textit{Gas limit}. If execution of a function exceeds the block gas limit, all transactions in that block will fail. Hence, it is recommended to not use loops and rely on \texttt{mappings} variables in \erc tokens. \texttt{mappings} variables store data in collection of key value pairs and are more efficient for tracking owned tokens by each holder.
+\subsection{Unprotected SELFDESTRUCT}\label{subsec:slfd}
+Another vulnerability stemming from the second Parity wallet attack~\cite{ParitySecondHack} is protecting the \texttt{SELFDESTRUCT} opcode which removes a contract from Ethereum. The self-destruct method is used to kill the contract and its associated storage. \erc tokens should not contain \texttt{SELFDESTRUCT} opcode unless there is a multi approval mechanism.
+
+\subsection{DoS with block gas limit.}\label{subsec:glimit}
+The use of loops in contracts is not efficient and requires considerable amount of Gas to execute. It might also cause DoS attack since blocks has a \textit{Gas limit}. If execution of a function exceeds the block gas limit, all transactions in that block will fail. Hence, it is recommended to not use loops and rely on \texttt{mappings} variables in \erc tokens. %\texttt{mappings} variables store data in collection of key value pairs and are more efficient for tracking owned tokens by each holder.
