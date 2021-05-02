@@ -1,9 +1,7 @@
-aux
-bbl
-blg
-log
-out
-pdf
-gz
-*.pdf
+*.aux
+*.bbl
+*.blg
 *.log
+*.out
+*.pdf
+*.gz
