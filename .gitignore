@@ -5,3 +5,5 @@ log
 out
 pdf
 gz
+*.pdf
+*.log
