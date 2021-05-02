@@ -1,0 +1,60 @@
+\documentclass[envcountsect]{llncs}
+\pagestyle{headings} 
+\bibliographystyle{splncs04}
+
+
+% = = = = = Packages = = = = = %
+\usepackage{multirow}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{enumitem}
+\setcounter{secnumdepth}{3}
+\input{setup/packages}
+\input{setup/macros}
+\input{setup/table}
+
+\newcommand{\sys}{\textsf{TokenHook}\xspace}
+\newcommand{\erc}{ERC-20\xspace}
+\newcommand{\num}{82\xspace}
+\newcommand{\prct}{99.5\%\xspace}
+\newcommand{\blue}{\color{blue}}
+
+% = = = = = Title = = = = = %
+
+\begin{document}
+\frontmatter
+\mainmatter
+
+\title{\Large \bf A deep dive on \erc contract vulnerabilities}
+
+\maketitle
+
+% = = = = = Abstract = = = = = %
+
+\input{sections/abstract}
+
+% = = = = = Main Body = = = = = %
+
+\input{sections/introduction}
+\input{sections/proposal}
+\input{sections/audits}
+\input{sections/comparison}
+\input{sections/conclusion}
+
+% = = = = = Bibliography = = = = = %
+
+{\footnotesize\bibliography{bib/references}}
+
+% = = = = = End Notes = = = = = %
+
+\appendix
+\input{sections/vulnerabilities}
+\input{sections/bestpractices}
+
+\end{document}
+
+
+
+
+
+
+

@@ -1,0 +1,97 @@
+% !TEX root = ../main.tex
+
+%\begin{figure}[t!]
+%	\centering
+%	\includegraphics[width=1.0\linewidth]{figures/blockchain.png}
+%	\caption{Architecture of the Ethereum blockchain in layers, including the interactive environment (\ie application layer). \erc tokens falls under the \textit{Smart Contracts} category in \textit{Contract Layer}.}\label{fig:blockchain}
+%\end{figure}
+
+\section{\sys}\label{sec:proposal}
+\sys is our ERC20-compliant implementation written in Solidity. \sys is open source and available on Etherscan, where it has been tested with MetaMask and deployed on Mainnet.\footnote{Etherscan: \url{https://bit.ly/35FMbAf}} It can be customized by developers, who can refer to each mitigation technique separately and address a specific attack. Required comments have been also added to clarify usage of each part. Standard functionalities of the token (\ie \texttt{approve()}, \texttt{transfer()}, \etc) have been unit tested. A demonstration of token interactions and event triggering can also be seen on Etherscan.\footnote{Etherscan: \url{https://bit.ly/33xHfL2}, \url{https://bit.ly/35TimMW}}
+
+Among the layers of the Ethereum blockchain, \erc tokens fall under the \textit{Contract layer} in which DApps are executed. The presence of security vulnerability in supplementary layers affect the entire Ethereum blockchain, not necessarily \erc tokens. Therefore, vulnerabilities in other layers are assumed to be out of the scope (\eg \textit{Indistinguishable chains} at the data layer, the \textit{51\% attack} at the consensus layer, \textit{Unlimited nodes creation} at network layer, and \textit{Web3.js Arbitrary File Write} at application layer). Moreover, we exclude vulnerabilities identified in now outdated compiler versions, for example:
+\begin{itemize}[noitemsep,topsep=0pt]
+	\item \textit{Constructor name ambiguity} in versions before 0.4.22.
+	\item \textit{Uninitialized storage pointer} in versions before 0.5.0.
+	\item \textit{Function default visibility} in versions before 0.5.0
+	\item \textit{Typographical error} in versions before 0.5.8.
+	\item \textit{Deprecated solidity functions} in versions before 0.4.25.
+	\item \textit{Assert Violation} in versions before 0.4.10.
+	\item \textit{Under-priced DoS attack} before EIP-150 \& EIP-1884.
+\end{itemize}
+
+
+\subsection{Security features}
+In Appendix~\ref{sec:vul}, we examine general attack vectors and cross-check their applicability to \erc tokens. As many of these are now well-researched attacks, we leave them in the appendix. How \sys mitigates these attacks is summarized as follows. 
+\begin{enumerate}[noitemsep,topsep=0pt]
+
+	\item  We secure the \texttt{transferFrom()} function to mitigate the \textit{multiple withdrawal} attack~\cite{ERC20MWA}. Without our counter-measure, an attacker can use a front-running attack~\cite{OrderingAttack,eskandari2019sok} to transfer more tokens than what is intended (approved) by the token holder. Our solution is compliant with the \erc standard. (\cf Appendix \ref{subsec:mwa})
+
+	\item We use the \texttt{SafeMath} library in all arithmetic operations to catch over/under flows. (\cf Appendix \ref{subsec:ovf})
+
+	\item We implement a \texttt{noReentrancy} modifier for external functions to mitigate \textit{same-function re-entrancy} and \textit{cross-function re-entrancy} attacks using mutual exclusion (mutex). (\cf Appendix \ref{subsec:ent})
+
+	\item We check the return value of \texttt{call.value()} to revert failed fund transfers in \texttt{sell()} and \texttt{withdraw()} functions. It mitigates the \textit{unchecked return values} attack while making the token contract compatible with EIP-1884~\cite{EIP1884}. (\cf Appendix \ref{subsec:urv})
+
+	\item We mitigate the \textit{frozen ether} issue by defining a \texttt{withdraw()} function that allows the owner to transfer all ETH out of the token contract. Otherwise, unexpected ETH forced onto the token contract (\eg from another contract running \texttt{selfdestruct}) will be stuck forever (\cf Appendix \ref{subsec:feth})
+
+	\item We apply an \texttt{onlyOwner} modifier to the \texttt{withdraw()} function to the mitigate \textit{unprotected Ether withdrawal} issue by enforcing authentication before transferring any funds out of the contract. (\cf Appendix \ref{subsec:uew})
+
+	\item We use embedded \texttt{Library} code to reduce gas costs (calling functions in embedded libraries requires less gas than external calls) and mitigate the \textit{state variable manipulation} attack. (\cf Appendix \ref{subsec:svm})
+	
+	\item We carefully define the visibility of each function. Most of the functions are declared as \texttt{External} (\eg \texttt{Approve()}, \texttt{Transfer()}, \etc) per specifications of \erc standard. (\cf Appendix \ref{subsec:pvis})
+\end{enumerate}
+
+\subsection{Best practices and enhancements}
+
+In Appendix \ref{sec:bp}, we also take into account a number of best practices for developing DApps and discuss those that are applicable to \erc. What follows is an overview of how we implement these in \sys. 
+
+\begin{enumerate}[noitemsep,topsep=0pt]
+	\item We implement all \erc functions to make it fully compatible with the standard. Compliance is important for ensuring that other DApps and web apps (\ie crypto-wallets, crypto-exchanges, web services, \etc) compose with \sys as expected. (\cf Appendix \ref{subsec:compl})
+
+	\item We apply an \texttt{external} visibility for interactive functions (\eg \texttt{approve()} and \texttt{transfer()}, \etc) to improve performance.  External functions can read arguments directly from non-persistent \texttt{calldata} instead of allocating persistent memory by the EVM. (\cf Appendix \ref{subsec:external})
+
+	\item We implement a `cease trade' operation that will freeze the token in the case of new security threats or new legal requirements (\eg Liberty Reserve \cite{LibertyReserve} or TON cryptocurrency\cite{TON}). To freeze all functionality of \sys, the owner (or multiple parties) can call the function \texttt{pause()} which sets a lock variable. All critical methods are marked with a \texttt{notPaused} modifier that will throw exceptions until functionality is restored using \texttt{unpause()}. (\cf Appendix \ref{subsec:failsf})
+
+	\item We define nine extra events: \texttt{Buy}, \texttt{Sell}, \texttt{Received}, \texttt{Withdrawal}, \texttt{Pause}, \texttt{Change}, \texttt{ChangeOwner}, \texttt{Mint} and \texttt{Burn}. \texttt{Change} event logs any state variable updates that can be used to watch for token inconsistent behavior (\eg via TokenScope\cite{TokenScope}) and react accordingly. (\cf Appendix \ref{subsec:evnts})
+	
+	\item We implement a \texttt{sell()} and \texttt{buy()} function for exchanging between tokens and ETH. \texttt{sell()} allows token holders to exchange tokens for ETH and \texttt{buy()} accepts ETH by adjusting buyer's token balance. While this is not necessary under \erc, we have seen this functionality added to tokens (\eg ORBT~\cite{ORBTToken}) and it needs to be done securely to prevent attacks like re-entrancy. It is used to buy and sell tokens at a fixed price (\eg an initial coin offering (ICO), prediction market portfolios~\cite{CBN+14}) independent of crypto-exchanges, which introduce a delay (for the token to be listed) and fees.
+	
+	\item We choose to make \sys non-upgradable so it can be audited, and upgrades will not introduce new vulnerabilities that did not exist at the time of the initial audit. (\cf Appendix \ref{subsec:prxy})
+	
+	\item We also follow other best practices such as not using batch processing in \texttt{sell()} function to avoid \textit{DoS with unexpected revert} issue, not using miner controlled variable in conditional statements, and not using \texttt{SELFDESTRUCT}.
+	
+\end{enumerate}
+
+\subsection{Need for another reference implementation}
+
+The authors of the \erc standard reference two sample Solidity implementations: one that is actively maintained by OpenZeppelin~\cite{OpenZepplin} and one that has been deprecated by ConsenSys~\cite{ConsensysToken} (and now refers to the OpenZeppelin implementation). As expected, the OpenZeppelin template is very popular within the Ethereum community \cite{OPZ1,OPZ2,OPZ3}.
+
+Diversity in software is important for robustness and security~\cite{FSA97,FHS97}. For \erc, a variety of implementations will reduce the impact of a single bug in a single implementation. For example, between 17 March 2017 and 13 July 2017, OpenZeppelin's implementation used the wrong interface and affected 130 tokens~\cite{ErcBug}. This is our primary motivation for developing \sys.
+
+OpenZeppelin's implementation is actually part of a small portfolio of implementations (ERC20, ECR721, ERC777, and ERC1155). Code reuse across the four implementations adds complexity for a developer that only wants \erc. Further, most audit tools are not able to import libraries/interfaces from external files (\eg SafeMath.sol, IERC20.sol). By contrast, \sys uses a flat layout in a single file that is specific to \erc.
+
+\sys makes other improvements over the OpenZeppelin implementation. OpenZeppelin introduces two new functions to mitigate the multiple withdraw attack: \texttt{increaseAllowance()} and \texttt{decreaseAllowance()} however these are not part of the \erc standard and are not  interoperable with other applications that expect to use \texttt{approve()} and \texttt{transferFrom()}. \sys secures \texttt{transferFrom()} to prevent the attack (following~\cite{ERC20MWA}) and is interoperable with legacy DApps and web apps. Additionally, \sys mitigates the \textit{frozen Ether} issue by introducing a \texttt{withdraw()} function, while ETH forced into the OpenZeppelin implementation is forever unrecoverable. Both contracts implement a \textit{fail-safe mode}, however this logic is internal to \sys, while OpenZeppelin requires an external \texttt{Pausable.sol} contract.
+
+% JC: Best guess at this paragraph (I could tell which were statements about us and which were statements about OpenZeppplin)
+
+In terms of best practices, OpenZeppelin requires other optimizations such as, locking the \textit{pragma} to avoid using outdated compiler versions by developers (\cf SWC-103), emit a \textit{Change} event (\cf TokenScope\cite{TokenScope}) when updating state variables (\eg \texttt{\_decimals=decimals\_} in \texttt{\_setupDecimals()}). Initializing \textit{totalSupply} in the constructor is also recommended. As we implemented, using \texttt{external} visibility instead of public increases readability and consumes less gas. Finally, these are very minor but it helps to have more readable token contract by avoiding similar variable names (\eg \texttt{\_name=name\_} in \texttt{constructor()}) and using \textit{mixedCase} format when declaring variable and functions.
+
+
+
+
+
+
+
+
+%These are only useful for tokens with a fixed exchange rate, which is managed by the \texttt{exchangeRate} variable.
+
+%\begin{enumerate}
+%	\item \textbf{Buying tokens:} \erc tokens can be offered to users for purchase. Users call the \texttt{buy()} function which accepts ETH (\ie defined as \textit{payable}) to be held by the \erc contract. The contract calculates the equivalent number of tokens based on the current exchange rate, increases the token balance of the buyer, and logs a \texttt{Buy} event.
+%	\item \textbf{Selling tokens:} By using \texttt{sell()} function, token holders can send back tokens to the contract and receive ETH in return as long as the contract holds ETH (see withdrawing ETH below). After each exchange, a \texttt{Sell} event triggers. 
+%	\item \textbf{Withdrawing Ether:} This function can be called only by the contract owner (or with a set of authorizations in a multi-owner implementations). The \texttt{withdraw()} function will transfer ETH out of the contract. This mitigates the unexpected ETH issue. Transferring ETH out of the contract logs a \texttt{Withdrawal} event.
+%\end{enumerate}
+%
+%These extra features allow the purchase and sale of tokens independently of an exchange service for fixed priced tokens.
+
+%would be a financial advantage for new tokens and makes them independent of crypto-exchanges. All the required functionalities are directly supported by the token contract and no additional external services are required. This feature is a financial advantage for new \erc tokens and reduces buyers doubts. They can return purchased token at any time and receive the equivalent in ETH. Another option for them is to wait for the token to be listed by crypto-exchanges (if it ever happens). Otherwise, they would not be able to exchange tokens if this feature is not support by the token contract.

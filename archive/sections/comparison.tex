@@ -1,0 +1,12 @@
+% !TEX root = ../main.tex
+
+\subsection{Comparing audits}
+After manually overriding the false positives, the average percentage of passed checks for \sys reaches to \prct. To pass the one missing check and reach a 100\% success rate across all tools, we prepared the same code in Solidity version 0.8.0, however it cannot be audited anymore with most of the tools. 
+
+We repeated the same auditing process on the top ten tokens based on their market cap~\cite{EtherScan}. The result of all these evaluation have been summarized in Table~\ref{tab:summary} by considering false positives as failed audits. This provides the same evaluation conditions across all tokens. Since each tool uses different analysis methods, number of occurrences are considered for comparisons. For example, MythX detects two \textit{re-entrancy} in \sys; therefore, two occurrences are counted instead of one. 
+
+
+As it can be seen in Table \ref{tab:summary}, \sys has the least number of security flaws (occurrences) compared to other tokens. We stress that detected security issues for \sys are all false positives. We are also up-front that this metric is not a perfect indication of security.  The other tokens may also have many/all false positives (such an analysis would be interesting future work), and not all true positives can be exploited~\cite{VulExp}. Mainly, we want to show this measurement as being consistent with our claims around the security of \sys. Had \sys, for example, had the highest number of occurrences, it would be a major red flag.
+
+\input{tables/table4}
+
