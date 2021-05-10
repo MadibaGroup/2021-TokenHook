@@ -1,7 +1,8 @@
 % !TEX root = ../main.tex
 
 \section{A sample of best practices}\label{sec:bp}
-Due to space, we highlight a few best practices for developing DApps. Some best practices are specific to \erc, while others are generic for all DApps---in which case, we discuss their relevance to \erc.
+
+We highlight a few best practices for developing DApps. Some best practices are specific to \erc, while others are generic for all DApps---in which case, we discuss their relevance to \erc.
 
 \subsection{Compliance with \erc.}\label{subsec:compl}
 According to the \erc specifications, all six methods and two events must be implemented and are not optional. Tokens that do not implement all methods (\eg GNT which does not implement the \texttt{approve()}, \texttt{allowance()} and \texttt{transferFrom()} functions due to \textit{front-running}\cite{GNT}) can cause failed function calls from other applications. They might also be vulnerable to complex attacks (\eg Fake deposit vulnerability\cite{DEPOSafe}, Missing return value bug\cite{ErcBug}).
