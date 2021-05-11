@@ -24,7 +24,7 @@ In our research, we developed 82 security vulnerabilities and best practices for
 Without our counter-measure, an attacker can use a front-running attack~\cite{OrderingAttack,eskandari2019sok} to transfer more tokens than what is intended (approved) by the token holder. We secure the \texttt{transferFrom()} function by tracking transferred tokens to mitigate the \textit{multiple withdrawal} attack~\cite{ERC20MWA}. Securing \texttt{transferFrom()} function is fully compliant with the \erc standard without the need of introducing new functions such as \texttt{decreaseApproval()} and \texttt{increaseApproval()}. 
 
 \subsubsection{Arithmetic Over/Under Flows (\ref{subsec:ovf})} 
-In Solidity implementation, we use the \texttt{SafeMath} library in all arithmetic operations to catch over/under flows. Using it in Vyper is not required due to built-in overflow checks.
+In Solidity implementation, we use the \texttt{SafeMath} library in all arithmetic operations to catch over/under flows. Using it in Vyper is not required due to built-in checks.
 
 \subsubsection{Re-entrancy (\ref{subsec:ent})} 
 At first glance, re-entrancy might seem inapplicable to \erc. However any function that changes internal state, such as balances, need to be checked. We use Checks-Effects-Interactions pattern (CEI)~\cite{CEI} in both Vyper and Solidity implementations to mitigate \textit{same-function re-entrancy} attack. Mutual exclusion (Mutex)~\cite{WiKiMutex} is also used to address \textit{cross-function re-entrancy} attack. Vyper supports Mutex by adding \texttt{@nonreentrant(<key>)} decorator on a function and we use \texttt{noReentrancy} modifier in Solidity to apply Mutex. Therefore, both re-entrancy variants are addressed in \sys. 

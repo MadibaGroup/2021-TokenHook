@@ -11,7 +11,7 @@
  * @dev The code is compatible with version 0.8.x of Solidity complier.
   */
  
-pragma solidity 0.8.0;
+pragma solidity 0.8.4;
 
 /**
  * @title ERC20 Interface
