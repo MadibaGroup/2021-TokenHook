@@ -7,10 +7,10 @@ The development of smart contracts has been proven to be error-prone, and as a r
 
 \subsubsection*{Contributions} Ethereum has undergone numerous security attacks that have collectively caused more than US\$100M in financial losses~\cite{DAO1,PeckShield,PartiyMultiSig,MyEthWallet,ParityFirstHack,ParitySecondHack}. Although research has been done on smart contract vulnerabilities in the past~\cite{EthSecServ}, we focus specifically on \erc tokens. 
 
-\begin{enumerate}
+\begin{enumerate}[\setlength{\labelsep}{3pt}\setlength{\IEEElabelindent}{0pt}]
 \item We study all known vulnerabilities and cross-check their relevance to \erc token contracts, systematizing a comprehensive set of 82 distinct vulnerabilities and best practices. 
-\item While not strictly a research contribution, we believe that our newly acquired specialized domain knowledge should be put to use. Thus, we provide a new implementation of the \erc interface, \sys, that is open source and freely available in both Vyper and Solidity.
-\item \sys is positioned to increase software diversity: currently, no Vyper \erc implementation is considered a reference implementation, and only one Solidity implementation from the specification is actively maintained (OpenZeppelin's~\cite{OpenZepplin}). Relative to this implementation, \sys has enhanced security properties and stronger compliance with best practices. 
+\item While not strictly a research contribution, we believe that our newly acquired specialized domain knowledge should be put to use. Thus, we provide a new \erc implementation, \sys, that is open source and freely available in both Vyper and Solidity.
+\item \sys is positioned to increase software diversity: currently, no Vyper \erc implementation is considered a reference implementation, and only one Solidity implementation is actively maintained (OpenZeppelin's~\cite{OpenZepplin}). Relative to this implementation, \sys has enhanced security properties and stronger compliance with best practices. 
 \item Perhaps of independent interest, we report on differences between Vyper and Solidity when implementing the same contract. \item We use \sys as a benchmark implementation to explore the completeness and precision of seven auditing tools that are widely used in industry to detect security vulnerabilities. We conclude that while these tools are better than nothing, they do not replace the role of a security expert in developing and reviewing smart contract code.
 \end{enumerate}
 

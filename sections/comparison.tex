@@ -2,7 +2,7 @@
 
 \subsection{Comparing audits}
 
-A full presentation of the audit results is provided in Appendix~\ref{subsec:audits}. No one tool provides complete (or even near-complete) coverage of all vulnerabilities, including tools specifically for tokens. Coverage of SWC vulnerabilities is noticeably higher than non-SWC. \sys addresses all 82 issues but triggers false positives on 7 issues for at least one of the seven tools. The only true failure for \sys is Odin's outdated compiler test---to pass this, \sys is compiled with Solidity version 0.8.0 however it cannot be audited anymore with most of the other tools.
+A full presentation of the audit results is provided in Appendix~\ref{subsec:audits}. No one tool provides complete (or even near-complete) coverage of all vulnerabilities, including tools specifically for tokens. Coverage of SWC vulnerabilities is noticeably higher than non-SWC. \sys addresses all 82 issues but triggers false positives on 7 issues for at least one of the seven tools. The only true failure for \sys is Odin's outdated compiler test---to pass this, \sys is compiled with Solidity version 0.8.4, however it cannot be audited anymore with most of the other tools.
 
 %We repeated the same auditing process on the top ten tokens based on their market cap~\cite{EtherScan}. The result of all these evaluation have been summarized in Table~\ref{tab:summary} by considering false positives as failed audits. This provides the same evaluation conditions across all tokens. Since each tool uses different analysis methods, number of occurrences are considered for comparisons. For example, MythX detects two \textit{re-entrancy} in \sys; therefore, two occurrences are counted instead of one. 
 
